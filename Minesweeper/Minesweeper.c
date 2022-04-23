@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include "..\DLL\DLL.h"
 #include <process.h>//多线程为了相对精确的计时。。。
 #include "resource.h"
@@ -80,17 +81,27 @@ LRESULT __stdcall WndProc(HWND hwnd,UINT message,WPARAM wParam,LPARAM lParam)
 	return DefWindowProc(hwnd,message,wParam,lParam);
 }
 
+void initializeunknown(int* block)
+{
+	for (size_t i = 0; i < 480; i++)
+	{
+		block[i] = 0x80000000;
+	}
+}
+
 LRESULT __stdcall main(HWND hwnd,UINT message,WPARAM wParam,LPARAM lParam)
 {
 	static HBITMAP* hbitmap;
 	static HANDLE hevent,hthread;
 	static int *block,size,time,mine=99;
+	static bool first_click;
 	switch(message)
 	{
 	case WM_CREATE:
 	{
 		block=malloc(480*sizeof(int));
-		initialize(block);
+		first_click = true;
+		initializeunknown(block);
 		hbitmap=loadbitmap();
 		hevent=CreateEvent(0,1,0,_T("continue"));
 		return 0;
@@ -124,6 +135,12 @@ LRESULT __stdcall main(HWND hwnd,UINT message,WPARAM wParam,LPARAM lParam)
 			*hwndcopy=hwnd;
 			hthread=(void*)_beginthread(timer,0,(void*)hwndcopy);
 		}
+		if (first_click)
+		{
+			initialize(block,k);
+			first_click = false;
+		}
+
 		if(block[k]&0x80000000&&!(block[k]&0x40000000))
 		{
 			block[k]&=0x7FFFFFFF;
@@ -226,7 +243,8 @@ LRESULT __stdcall main(HWND hwnd,UINT message,WPARAM wParam,LPARAM lParam)
 			flag=MessageBox(hwnd,_T("很遗憾，你失败了！\r\n\r\n确定:重新开始游戏\r\n取消:退出游戏"),_T("失败"),MB_OKCANCEL|MB_ICONASTERISK);
 		if(flag==IDOK)
 		{
-			initialize(block);
+			first_click = true;
+			initializeunknown(block);
 			InvalidateRect(hwnd,0,0);
 			HWND hwndparent=GetParent(hwnd);
 			//InvalidateRect(hwndparent,0,1);闪屏

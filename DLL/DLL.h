@@ -21,6 +21,6 @@ export HBITMAP* loadbitmap();
 export void freebitmap(HBITMAP* hbitmap);
 
 export int isvictory(int* block);
-export void initialize(int* block);
+export void initialize(int* block,int avoid);
 export void count(int* block,int num);
 export void showaround(int* block,int num);

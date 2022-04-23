@@ -15,7 +15,7 @@ BOOL APIENTRY DllMain(HMODULE hModule,DWORD  ul_reason_for_call,LPVOID lpReserve
 	return TRUE;
 }
 
-void initialize(int* block)
+void initialize(int* block,int avoid)
 {
 	FILETIME filetime;
 	GetSystemTimeAsFileTime(&filetime);
@@ -24,7 +24,7 @@ void initialize(int* block)
 	for(int i=0;i<99;i++)
 	{
 		int j=rand()%480;
-		if(block[j]!=9)
+		if(j != avoid&&block[j]!=9)
 			block[j]=9;
 		else
 			i--;
