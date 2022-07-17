@@ -155,14 +155,14 @@ LRESULT __stdcall main(HWND hwnd,UINT message,WPARAM wParam,LPARAM lParam)
 				InvalidateRect(hwnd,&rect,0);
 				if(block[k]==9)
 				{
-					hthread=0;
+					hthread = 0;
 					ResetEvent(hevent);
 					PostMessage(hwnd,WM_USER+1,0,0);
 				}
 			}
 			if(isvictory(block))
 			{
-				hthread=0;
+				hthread = 0;
 				ResetEvent(hevent);
 				PostMessage(hwnd,WM_USER+1,0,1);
 			}
@@ -251,6 +251,9 @@ LRESULT __stdcall main(HWND hwnd,UINT message,WPARAM wParam,LPARAM lParam)
 			HDC hdc=GetDC(hwndparent);
 			erasetext(hwnd,hdc);
 			ReleaseDC(hwndparent,hdc);
+			HANDLE hexit=CreateEvent(0, 1, 0, _T("exit"));
+			WaitForSingleObject(hexit, INFINITE);
+			ResetEvent(hexit);
 			time=0;mine=99;
 		}
 		else
@@ -279,8 +282,9 @@ void timer(void* Parameter)
 	while(WaitForSingleObject(hevent,0)==WAIT_OBJECT_0)
 	{
 		WaitForSingleObject(htimer,INFINITE);
-		SendMessage(hwnd,WM_TIMER,0,0);
+		PostMessage(hwnd,WM_TIMER,0,0);
 	}
+	SetEvent(CreateEvent(0, 1, 0, _T("exit")));
 }
 void erasetext(HWND hwnd,HDC hdc)
 {
